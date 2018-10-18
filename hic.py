@@ -1,41 +1,49 @@
-def hic():
+def hic(interval_length, calibration = 4):
 	f = open('raw.txt')
-	lst = []
-	lst = f.readlines()	
+	lines = f.readlines()
 	f.close()
-	#bigboy = []
-	#hics = []
-	lst = lst[100:-100]
-	lst = list(map(lambda x : float(x.split()[1]), lst))
 
-	lst = list(map(lambda x : abs(x+4), lst))
+	# get rid of bad data
+	lines = lines[100:-100]
+
+	time_stamps = list(map(lambda x : float(x.split()[0]), lines))
+	accelerations = list(map(lambda x : float(x.split()[1]), lines))
+	
+	# adjust accelerations based on calibration
+	accelerations = list(map(lambda x : abs(x + calibration), accelerations))
 
 	max_hic = 0
-	max_hic_start = -1
-	max_hic_end = -1
-	for start in range(len(lst)):
-	  for end in range(start + 15, min(len(lst), start + 25)):
-	    avg = sum(lst[start : end + 1]) / float(   1  *  len(lst[start : end + 1]))
-	    t = (len(lst[start : end + 1])) * 0.001
-	    hic_test = t * ((avg) ** 2.5)
-	    #bigboy.append(hic_test)
-	    if hic_test > max_hic:
-	      max_hic = hic_test
-	      max_hic_start = start
-	      max_hic_end = end
+	max_hic_start_index = -1
+	max_hic_end_index = -1
+
+	for start_index in range(len(time_stamps) - interval_length):
+		start_timestamp = time_stamps[start_index]
+		end_index = start_index + 1
+
+		while time_stamps[end_index] - start_timestamp < interval_length:
+			end_index += 1
+
+		sum_of_acceleration = sum(accelerations[start_index : end_index + 1])
+		avg_acceleration = sum_of_acceleration / float(end_index - start_index + 1)
+		time_elapsed = (time_stamps[end_index] - time_stamps[start_index]) * 0.001
+
+		hic_value = time_elapsed * (avg_acceleration ** 2.5)
+
+		if hic_value > max_hic:
+			max_hic = hic_value
+			max_hic_start_index = start_index
+			max_hic_end_index = end_index
 
 	print("Max HIC: ", max_hic)
-	print("Start:", max_hic_start)
-	print("End:", max_hic_end)
-	print(lst[max_hic_start:max_hic_end])
+	print("Start:", time_stamps[max_hic_start_index])
+	print("End:", time_stamps[max_hic_end_index])
+	print(accelerations[max_hic_start_index : max_hic_end_index + 1])
+
 	import matplotlib.pyplot as plt
-	#for a in range(len(bigboy)):
-	#  hics.append(a)
 
-
-	#plt.plot(hics,bigboy)
-	#plt.show()
+	plt.plot(time_stamps, accelerations)
+	plt.show()
 
 	return max_hic
-hic()
 
+hic(15)
