@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-def hic(interval_length, calibration = 4):
-	with open("raw.txt") as f:
+def hic(filename, interval_length, calibration = 4):
+	with open(filename) as f:
 		lines = f.readlines()
 
 	# get rid of bad data
@@ -54,4 +54,5 @@ def hic(interval_length, calibration = 4):
 
 	return max_hic
 
-hic(interval_length = 15, calibration = 4)
+filename = input("Please enter the name of the file you'd like to read: ")
+hic(filename, interval_length = 15, calibration = 4)
