@@ -10,6 +10,8 @@ def hic(filename, interval_length, calibration = 4):
 	# each data point comes in the following form: time_stamp_ms, acceleration
 	time_stamps = list(map(lambda x : float(x.split()[0]), lines))
 	accelerations = list(map(lambda x : float(x.split()[1]), lines))
+
+	print(time_stamps)
 	
 	# adjust accelerations based on calibration
 	accelerations = list(map(lambda x : abs(x + calibration), accelerations))
@@ -18,7 +20,7 @@ def hic(filename, interval_length, calibration = 4):
 	max_hic_start_index = -1
 	max_hic_end_index = -1
 
-	for start_index in range(len(time_stamps)):
+	for start_index in range(len(time_stamps) - 1):
 		start_timestamp = time_stamps[start_index]
 		end_index = start_index + 1
 

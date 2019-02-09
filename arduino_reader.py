@@ -4,6 +4,7 @@ import serial.tools.list_ports
 
 # list of ports that have an arduino connected to them
 arduino_ports = [p.device for p in serial.tools.list_ports.comports() if 'Arduino' in p.description]
+arduino_ports = ['/dev/cu.usbmodem14201']
 
 # error messaging if there is not exactly one arduino connected
 if not arduino_ports:
@@ -12,7 +13,7 @@ if len(arduino_ports) > 1:
     warnings.warn('Multiple Arduinos found - using the first')
 
 # open a stream from the serial port connected to the arduino
-ser = serial.Serial(arduino_ports[0])
+ser = serial.Serial(arduino_ports[0], baudrate = 115200)
 
 # ask the user to enter a filename to save in
 filename = input('Enter a file name to save data from: ')
@@ -22,13 +23,15 @@ print('Press CTRL-C to finish reading a save to the file.')
 while True:
     try:
         # put newline into a
-        line.append(ser.readline())
+        line = ser.readline().decode().strip()
+        print(line)
+        lines.append(str(line))
     except KeyboardInterrupt:
         # if the user presses CTRL-C just break out of the loop
         break
     
 with(open(filename, 'w+')) as f:
     for line in lines:
-        f.write(line)
+        f.write(line + '\n')
 
 print('Finished writing contents to file.')
