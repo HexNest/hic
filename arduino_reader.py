@@ -1,37 +1,37 @@
 import warnings
 import serial
 import serial.tools.list_ports
+import re
+import io
 
 # list of ports that have an arduino connected to them
-arduino_ports = [p.device for p in serial.tools.list_ports.comports() if 'Arduino' in p.description]
-arduino_ports = ['/dev/cu.usbmodem14201']
 
-# error messaging if there is not exactly one arduino connected
-if not arduino_ports:
-    raise IOError('No Arduino found')
-if len(arduino_ports) > 1:
-    warnings.warn('Multiple Arduinos found - using the first')
+all_ports = [p for p in serial.tools.list_ports.comports()]
+print("Enter a number:")
+for i in range(len(all_ports)):
+    print(str(i) + " for " + all_ports[i].device)
+index = int(input())
+#arduino_ports = [p.device for p in serial.tools.list_ports.comports() if 'Arduino' in p.description]
 
-# open a stream from the serial port connected to the arduino
-ser = serial.Serial(arduino_ports[0], baudrate = 115200)
-
-# ask the user to enter a filename to save in
-filename = input('Enter a file name to save data from: ')
+addr  = all_ports[index].device
+baud  = 115200
+fname = input('Enter a file name to save data from: ')
 lines = []
-print('Press CTRL-C to finish reading a save to the file.')
 
-while True:
-    try:
-        # put newline into a
-        line = ser.readline().decode().strip()
-        print(line)
-        lines.append(str(line))
-    except KeyboardInterrupt:
-        # if the user presses CTRL-C just break out of the loop
-        break
+print(addr)
+
+with serial.Serial(addr, baud) as pt:
+    spb = io.TextIOWrapper(io.BufferedRWPair(pt,pt,1),
+        encoding='ascii', errors='ignore', newline='\n',line_buffering=True)
+    spb.readline()  # throw away first line; likely to start mid-sentence (incomplete)
+    while (True):
+        try:
+            line = spb.readline()
+            lines.append(line)  # read one line of text from serial port
+        except KeyboardInterrupt:
+            break
     
-with(open(filename, 'w+')) as f:
-    for line in lines:
-        f.write(line + '\n')
+with(open(fname, 'w+')) as f:
+    f.writelines(lines)
 
 print('Finished writing contents to file.')
