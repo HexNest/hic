@@ -8,8 +8,8 @@ def hic(filename, interval_length, calibration = 4):
 	lines = lines[100:-100]
 
 	# each data point comes in the following form: time_stamp_ms, acceleration
-	time_stamps = list(map(lambda x : float(x.split(',')[0]), lines))
-	accelerations = list(map(lambda x : float(x.split(',')[1]), lines))
+	time_stamps = list(map(lambda x : float(x.split()[0]), lines))
+	accelerations = list(map(lambda x : float(x.split([1]), lines))
 
 	print(time_stamps)
 	
