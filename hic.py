@@ -11,6 +11,8 @@ def hic(filename, interval_length, calibration = 4):
 	time_stamps = list(map(lambda x : float(x.split()[0]), lines))
 	accelerations = list(map(lambda x : float(x.split()[1]), lines))
 
+	# changed comment
+
 	print(time_stamps)
 	
 	# adjust accelerations based on calibration
